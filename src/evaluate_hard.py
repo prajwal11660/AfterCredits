@@ -3,7 +3,7 @@ from hard_evaluation_data import HARD_EVALUATION_DATA
 from story_profile import create_story_profile
 from similarity import dictionary_similarity, tone_similarity
 from embedding_similarity import cosine_similarity
-from scorer import calculate_score
+from scorer import calculate_score_no_tone
 
 
 def calculate_book_score(movie_profile, book_profile):
@@ -32,13 +32,13 @@ def calculate_book_score(movie_profile, book_profile):
         book_profile.tone
     )
 
-    result = calculate_score(
-        theme_similarity,
-        character_similarity,
-        emotional_experience_similarity,
-        embedding_similarity,
-        tone_similarity_score
+    result = calculate_score_no_tone(
+    theme_similarity,
+    character_similarity,
+    emotional_experience_similarity,
+    embedding_similarity
     )
+    
 
     return {
         "score": result["score"],
@@ -115,7 +115,6 @@ def calculate_pairwise_accuracy(results):
 
 
 if __name__ == "__main__":
-
     print("\n==============================")
     print("AFTERCREDITS HARD EVALUATION")
     print("==============================")
@@ -132,20 +131,27 @@ if __name__ == "__main__":
         print("\nPredicted Ranking:")
 
         for rank, result in enumerate(results, start=1):
+
             print(
-        f"{rank}. {result['title']} "
-        f"→ {result['score']:.3f} "
-        f"(expected: {result['expected']})"
-    )
+                f"{rank}. {result['title']} "
+                f"→ {result['score']:.3f} "
+                f"(expected: {result['expected']})"
+            )
 
-    print("   Similarities:")
-    for name, value in result["similarities"].items():
-        print(f"      {name:25} {value:.3f}")
+            print("   Similarities:")
 
-    print("   Contributions:")
-    for name, value in result["contributions"].items():
-        print(f"      {name:25} {value:.3f}")
-            
+            for name, value in result["similarities"].items():
+                print(
+                    f"      {name:25} {value:.3f}"
+                )
+
+            print("   Contributions:")
+
+            for name, value in result["contributions"].items():
+                print(
+                    f"      {name:25} {value:.3f}"
+                )
+
         correct, comparisons = calculate_pairwise_accuracy(
             results
         )
