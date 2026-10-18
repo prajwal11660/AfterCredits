@@ -1,30 +1,17 @@
+import math
 from dataclasses import dataclass, field
 from typing import Dict, List
 
-from transformers import pipeline
-from sentence_transformers import SentenceTransformer
-
 from emotional_experience import extract_emotional_experiences
+from model_runtime import (
+    classify_emotions,
+    classify_zero_shot,
+    create_semantic_embedding,
+)
 from tone import extract_tone
 
 
-# Emotion classifier
-emotion_classifier = pipeline(
-    "text-classification",
-    model="SamLowe/roberta-base-go_emotions",
-    top_k=None
-)
-
-# Semantic embedding model
-embedding_model = SentenceTransformer(
-    "sentence-transformers/all-MiniLM-L6-v2"
-)
-
-# Zero-shot classifier
-theme_classifier = pipeline(
-    "zero-shot-classification",
-    model="facebook/bart-large-mnli"
-)
+PROFILE_VERSION = 2
 
 
 # Themes AfterCredits currently cares about
@@ -65,11 +52,7 @@ CHARACTER_TRAITS = [
 
 
 def extract_character_traits(text):
-    results = theme_classifier(
-        text,
-        candidate_labels=CHARACTER_TRAITS,
-        multi_label=True
-    )
+    results = classify_zero_shot(text, CHARACTER_TRAITS)
 
     traits = {}
 
@@ -81,7 +64,7 @@ def extract_character_traits(text):
 
 
 def extract_emotions(text):
-    results = emotion_classifier(text)
+    results = classify_emotions(text)
 
     emotions = {}
 
@@ -95,11 +78,7 @@ def extract_emotions(text):
 
 
 def extract_themes(text):
-    results = theme_classifier(
-        text,
-        candidate_labels=THEMES,
-        multi_label=True
-    )
+    results = classify_zero_shot(text, THEMES)
 
     themes = {}
 
@@ -111,8 +90,7 @@ def extract_themes(text):
 
 
 def create_embedding(text):
-    embedding = embedding_model.encode(text)
-    return embedding.tolist()
+    return create_semantic_embedding(text)
 
 
 @dataclass
@@ -131,6 +109,13 @@ class StoryProfile:
 
 
 def create_story_profile(title, text):
+    if not isinstance(title, str) or not title.strip():
+        raise ValueError("Story title must be a non-empty string.")
+    if not isinstance(text, str) or not text.strip():
+        raise ValueError("Story description must be a non-empty string.")
+
+    title = title.strip()
+    text = text.strip()
     themes = extract_themes(text)
     character_traits = extract_character_traits(text)
     emotions = extract_emotions(text)
@@ -138,7 +123,7 @@ def create_story_profile(title, text):
     embedding = create_embedding(text)
     tone = extract_tone(text)
 
-    return StoryProfile(
+    profile = StoryProfile(
         title=title,
         emotions=emotions,
         emotional_experiences=emotional_experiences,
@@ -146,6 +131,59 @@ def create_story_profile(title, text):
         character_traits=character_traits,
         tone=tone,
         embedding=embedding
+    )
+    if not is_valid_story_profile(profile):
+        from model_runtime import ModelUnavailableError
+
+        raise ModelUnavailableError(
+            "Story profiling returned an invalid profile."
+        )
+    return profile
+
+
+def is_valid_story_profile(profile):
+    if not isinstance(getattr(profile, "title", None), str):
+        return False
+    if not profile.title.strip():
+        return False
+
+    for name in (
+        "emotions",
+        "emotional_experiences",
+        "themes",
+        "character_traits",
+    ):
+        values = getattr(profile, name, None)
+        if not isinstance(values, dict):
+            return False
+        if any(
+            not isinstance(score, (int, float))
+            or not math.isfinite(score)
+            or not 0.0 <= score <= 1.0
+            for score in values.values()
+        ):
+            return False
+
+    tone = getattr(profile, "tone", None)
+    if not isinstance(tone, dict):
+        return False
+    for group in tone.values():
+        if not isinstance(group, dict) or any(
+            not isinstance(score, (int, float))
+            or not math.isfinite(score)
+            or not 0.0 <= score <= 1.0
+            for score in group.values()
+        ):
+            return False
+
+    embedding = getattr(profile, "embedding", None)
+    return (
+        isinstance(embedding, (list, tuple))
+        and bool(embedding)
+        and all(
+            isinstance(value, (int, float)) and math.isfinite(value)
+            for value in embedding
+        )
     )
 
 

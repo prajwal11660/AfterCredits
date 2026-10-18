@@ -1,0 +1,127 @@
+[
+  {
+    "title": "The Catcher in the Rye",
+    "author": "J. D. Salinger",
+    "description": "A disillusioned teenager wanders through New York while struggling with alienation, loneliness, grief, identity, and his difficulty connecting with the adult world."
+  },
+  {
+    "title": "Norwegian Wood",
+    "author": "Haruki Murakami",
+    "description": "A young man remembers his university years, complicated relationships, loneliness, grief, love, emotional vulnerability, and the lasting impact of loss."
+  },
+  {
+    "title": "A Little Life",
+    "author": "Hanya Yanagihara",
+    "description": "Four friends navigate adulthood, friendship, ambition and emotional connection while one of them struggles with severe childhood trauma, vulnerability and difficulty accepting love."
+  },
+  {
+    "title": "The Bell Jar",
+    "author": "Sylvia Plath",
+    "description": "A talented young woman struggles with identity, isolation, expectations, ambition and an increasing sense of disconnection while trying to understand the life she wants."
+  },
+  {
+    "title": "Eleanor Oliphant Is Completely Fine",
+    "author": "Gail Honeyman",
+    "description": "A socially isolated woman living a highly structured life gradually experiences friendship, vulnerability, connection and emotional healing while confronting painful experiences from her past."
+  },
+  {
+    "title": "The Kite Runner",
+    "author": "Khaled Hosseini",
+    "description": "A man looks back on childhood friendship, betrayal and guilt while seeking redemption, forgiveness and a way to confront the emotional consequences of his past."
+  },
+  {
+    "title": "Never Let Me Go",
+    "author": "Kazuo Ishiguro",
+    "description": "Friends raised together at an unusual boarding school gradually confront love, memory, mortality, loss and the painful limits placed upon their lives."
+  },
+  {
+    "title": "Normal People",
+    "author": "Sally Rooney",
+    "description": "Two young people repeatedly move toward and away from each other while navigating intimacy, insecurity, class, loneliness, vulnerability and their difficulty expressing what they need."
+  },
+  {
+    "title": "The Book Thief",
+    "author": "Markus Zusak",
+    "description": "A young girl in Nazi Germany finds comfort in books and human connection while experiencing friendship, fear, grief, courage and devastating loss."
+  },
+  {
+    "title": "Looking for Alaska",
+    "author": "John Green",
+    "description": "A teenager searching for a more meaningful life enters boarding school and experiences intense friendship, love, guilt, grief and self-discovery."
+  },
+  {
+    "title": "The Midnight Library",
+    "author": "Matt Haig",
+    "description": "A woman filled with regret encounters alternate versions of the life she might have lived and begins reconsidering meaning, relationships, hope and what makes a life worth living."
+  },
+  {
+    "title": "Flowers for Algernon",
+    "author": "Daniel Keyes",
+    "description": "A man undergoes an experiment that dramatically changes his intelligence and experiences ambition, loneliness, connection, self-awareness, love and profound loss."
+  },
+  {
+    "title": "The Remains of the Day",
+    "author": "Kazuo Ishiguro",
+    "description": "An aging butler reflects on a lifetime of emotional restraint, loyalty and missed connection while confronting regret and the choices that shaped his life."
+  },
+  {
+    "title": "The Road",
+    "author": "Cormac McCarthy",
+    "description": "A father and son travel through a devastated world, depending on their bond, love, resilience and hope while confronting fear, isolation and loss."
+  },
+  {
+    "title": "The Alchemist",
+    "author": "Paulo Coelho",
+    "description": "A young shepherd leaves his familiar life to pursue a dream, encountering uncertainty, adventure, self-discovery, purpose and personal transformation."
+  },
+  {
+    "title": "Into the Wild",
+    "author": "Jon Krakauer",
+    "description": "A young man rejects conventional expectations and travels into the wilderness searching for freedom, identity, meaning and a more authentic way of living."
+  },
+  {
+    "title": "The Curious Incident of the Dog in the Night-Time",
+    "author": "Mark Haddon",
+    "description": "A teenager investigates a mysterious event and is pushed beyond his familiar routines into a difficult journey involving family, trust, independence and self-discovery."
+  },
+  {
+    "title": "Anxious People",
+    "author": "Fredrik Backman",
+    "description": "A group of strangers caught in an unusual crisis gradually reveal their fears, loneliness, regrets and vulnerabilities while discovering unexpected empathy and connection."
+  },
+  {
+    "title": "A Man Called Ove",
+    "author": "Fredrik Backman",
+    "description": "A lonely and grieving man whose life has become rigid and isolated slowly forms unexpected relationships with his neighbors and rediscovers connection, purpose and belonging."
+  },
+  {
+    "title": "The Goldfinch",
+    "author": "Donna Tartt",
+    "description": "After a traumatic childhood loss, a boy carries grief into adulthood while struggling with identity, loneliness, attachment, friendship and his attempts to find meaning."
+  },
+  {
+    "title": "A Game of Thrones",
+    "author": "George R. R. Martin",
+    "description": "In a war-torn realm, rival noble families compete for the Iron Throne through shifting alliances, political intrigue, betrayal and battles. The story follows family loyalties, succession, power and survival across a kingdom."
+  },
+  {
+    "title": "Shogun",
+    "author": "James Clavell",
+    "description": "In feudal Japan, powerful lords and rival clans struggle for control during a period of civil war. Court intrigue, shifting loyalties, family honor and military conflict shape the contest for power."
+  },
+  {
+    "title": "Dune",
+    "author": "Frank Herbert",
+    "description": "A young heir of House Atreides is drawn into a struggle between noble families for control of a desert world. Dynastic rivalry, political betrayal, rebellion and war threaten the balance of an interstellar empire."
+  },
+  {
+    "title": "The Lord of the Rings",
+    "author": "J. R. R. Tolkien",
+    "description": "An ancient threat draws the peoples and kingdoms of Middle-earth into a vast war over power. Competing loyalties, courage, betrayal and the fate of royal lineages shape an epic struggle."
+  },
+  {
+    "title": "The Pillars of the Earth",
+    "author": "Ken Follett",
+    "description": "In medieval England, families, nobles and church leaders contend with civil war, succession, ambition and political power as they struggle to build a cathedral and secure their place in a divided kingdom."
+  }
+]

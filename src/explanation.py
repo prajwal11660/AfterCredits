@@ -76,9 +76,15 @@ def explain_recommendation(
                 "shared": shared["themes"]
             },
             "story_meaning": {
-                "score": similarities["embedding"],
+                "score": similarities.get(
+                    "lexical_tfidf",
+                    similarities.get("embedding", 0.0),
+                ),
                 "label": strength_label(
-                    similarities["embedding"]
+                    similarities.get(
+                        "lexical_tfidf",
+                        similarities.get("embedding", 0.0),
+                    )
                 )
             }
         }

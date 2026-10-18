@@ -1,9 +1,4 @@
-from transformers import pipeline
-
-tone_classifier = pipeline(
-    "zero-shot-classification",
-    model="facebook/bart-large-mnli"
-)
+from model_runtime import classify_zero_shot
 
 ATMOSPHERE = [
     "warm",
@@ -27,11 +22,7 @@ NARRATIVE_FEEL = [
 
 
 def classify_tones(text, labels):
-    results = tone_classifier(
-        text,
-        candidate_labels=labels,
-        multi_label=True
-    )
+    results = classify_zero_shot(text, labels)
 
     tones = {}
 

@@ -1,10 +1,4 @@
-from transformers import pipeline
-
-
-emotional_experience_classifier = pipeline(
-    "zero-shot-classification",
-    model="facebook/bart-large-mnli"
-)
+from model_runtime import classify_zero_shot
 
 
 EMOTIONAL_EXPERIENCES = [
@@ -33,11 +27,7 @@ EMOTIONAL_EXPERIENCES = [
 
 def extract_emotional_experiences(text):
 
-    results = emotional_experience_classifier(
-        text,
-        candidate_labels=EMOTIONAL_EXPERIENCES,
-        multi_label=True
-    )
+    results = classify_zero_shot(text, EMOTIONAL_EXPERIENCES)
 
     experiences = {}
 
