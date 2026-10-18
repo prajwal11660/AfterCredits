@@ -2,7 +2,12 @@ import logging
 import math
 
 from book_validation import log_book_issues, validate_books
-from lexical_similarity import lexical_match_terms, lexical_similarities
+from lexical_similarity import (
+    lexical_match_terms,
+    lexical_similarities,
+    title_similarity,
+    token_coverage,
+)
 from model_runtime import ModelUnavailableError
 from story_profile import (
     StoryProfile,
@@ -69,6 +74,7 @@ def recommend_books(
     books,
     top_k=5,
     model_unavailable_reason=None,
+    query_expansion="",
 ):
     """
     Recommend books based on the emotional and narrative
@@ -113,6 +119,7 @@ def recommend_books(
             valid_books,
             top_k,
             str(model_unavailable_reason),
+            query_expansion,
         )
 
     try:
@@ -178,6 +185,7 @@ def recommend_books(
             valid_books,
             top_k,
             str(error),
+            query_expansion,
         )
 
 
@@ -187,22 +195,63 @@ def _recommend_lexically(
     books,
     top_k,
     fallback_reason,
+    query_expansion="",
 ):
-    scores = lexical_similarities(
-        f"{movie_title} {movie_description}",
-        [
-            f"{book['title']} {book['description']}"
-            for book in books
-        ],
-    )
+    query = movie_description
+    plot_documents = [
+        f"{book['title']} {book['description']}"
+        for book in books
+    ]
+    metadata_documents = [
+        f"{book['title']} {' '.join(book.get('search_terms', []))}"
+        for book in books
+    ]
+    plot_scores = lexical_similarities(query, plot_documents)
+    title_scores = lexical_similarities(movie_title, plot_documents)
+    topic_query = query_expansion if query_expansion.strip() else query
+    metadata_scores = [
+        token_coverage(topic_query, document)
+        for document in metadata_documents
+    ]
+    fuzzy_title_scores = [
+        title_similarity(movie_title, book["title"])
+        for book in books
+    ]
+    scores = []
+    for book, plot_score, metadata_score, title_score, fuzzy_score in zip(
+        books,
+        plot_scores,
+        metadata_scores,
+        title_scores,
+        fuzzy_title_scores,
+    ):
+        if (
+            plot_score < 0.035
+            and metadata_score < 0.2
+            and fuzzy_score < 0.7
+        ):
+            continue
+        scores.append(
+            (
+                0.65 * plot_score
+                + 0.20 * metadata_score
+                + 0.05 * title_score
+                + 0.10 * fuzzy_score,
+                book,
+            )
+        )
+
     movie_profile = StoryProfile(title=movie_title)
     recommendations = []
 
-    query = f"{movie_title} {movie_description}"
-    for book, score in zip(books, scores):
+    evidence_query = f"{query} {query_expansion}"
+    for score, book in scores:
         if score < MIN_LEXICAL_SCORE:
             continue
-        searchable_text = f"{book['title']} {book['description']}"
+        searchable_text = (
+            f"{book['title']} {book['description']} "
+            f"{' '.join(book.get('search_terms', []))}"
+        )
         book_profile = StoryProfile(title=book["title"])
         recommendations.append({
             "title": book["title"],
@@ -219,7 +268,12 @@ def _recommend_lexically(
             },
             "profile": book_profile,
             "method": "lexical_tfidf",
-            "matched_terms": lexical_match_terms(query, searchable_text),
+            "matched_terms": lexical_match_terms(
+                evidence_query,
+                searchable_text,
+            ),
+            "source": book.get("source", "Local catalog"),
+            "source_url": book.get("source_url"),
         })
 
     recommendations.sort(key=lambda item: item["score"], reverse=True)

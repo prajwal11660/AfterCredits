@@ -10,6 +10,7 @@ sys.path.insert(0, str(SRC_DIR))
 from book_profiles import (
     load_profiles_or_local_books,
 )
+from open_library import discover_books, merge_book_candidates
 from recommender import recommend_books
 from explanation import explain_recommendation
 
@@ -66,20 +67,34 @@ if st.button("Find My Books", type="primary"):
         try:
 
             with st.spinner("Understanding the movie..."):
-                profile_error = None
-
                 @st.cache_resource
-                def load_api_books():
+                def load_local_books():
                     return load_profiles_or_local_books()
 
-                books, profile_error = load_api_books()
+                @st.cache_data(ttl=21600, show_spinner=False)
+                def discover_movie_books(title, description):
+                    return discover_books(title, description)
+
+                local_books, _profile_error = load_local_books()
+                discovered_books, query_expansion, search_errors = (
+                    discover_movie_books(movie_title, movie_description)
+                )
+                books = merge_book_candidates(
+                    local_books,
+                    discovered_books,
+                )
+                fallback_reason = (
+                    "Movie-specific Open Library candidates are ranked "
+                    "with local TF-IDF matching."
+                )
 
                 result = recommend_books(
                     movie_title,
                     movie_description,
                     books,
                     top_k=top_k,
-                    model_unavailable_reason=profile_error,
+                    model_unavailable_reason=fallback_reason,
+                    query_expansion=query_expansion,
                 )
 
                 movie_profile = result["movie_profile"]
@@ -87,9 +102,24 @@ if st.button("Find My Books", type="primary"):
 
             if result["method"] == "lexical_tfidf":
                 st.warning(
-                    "Using fast local TF-IDF text matching instead of "
-                    "neural story profiles. "
-                    f"Reason: {result['fallback_reason']}"
+                    "Suggestions are retrieved from the local catalog and "
+                    "Open Library, then ranked against the plot using "
+                    "fast TF-IDF matching."
+                )
+            if discovered_books:
+                st.caption(
+                    f"Compared {len(books)} books, including "
+                    f"{len(discovered_books)} Open Library candidates."
+                )
+            elif search_errors:
+                st.warning(
+                    "Open Library could not be reached. Showing matches from "
+                    "the local catalog only."
+                )
+            else:
+                st.caption(
+                    "Open Library found no additional candidates; "
+                    "recommendations use the local catalog."
                 )
 
             if not recommendations:
@@ -110,10 +140,15 @@ if st.button("Find My Books", type="primary"):
 
                 st.caption(
                     f"by {book['author']}  •  "
-                    f"Match score: {book['score']:.3f}"
+                    f"Match score: {book['score']:.3f}  •  "
+                    f"Source: {book.get('source', 'Local catalog')}"
                 )
 
                 st.write(book["description"])
+                if book.get("source_url"):
+                    st.markdown(
+                        f"[View on Open Library]({book['source_url']})"
+                    )
 
                 with st.expander("Why this book?"):
                     if book["method"] == "lexical_tfidf":

@@ -1,6 +1,7 @@
 import math
 import re
 from collections import Counter
+from difflib import SequenceMatcher
 
 
 _TOKEN_PATTERN = re.compile(r"[^\W_]+", re.UNICODE)
@@ -8,8 +9,8 @@ _STOP_WORDS = frozenset({
     "a", "an", "and", "are", "as", "at",     "be", "been", "between", "but", "by",
     "for", "from", "had", "has", "have", "he", "her", "his", "i",
     "in", "is", "it", "its", "of", "on", "or", "our", "she", "that",
-    "the", "their", "them", "there", "they", "this", "to", "was",
-    "we", "were", "with", "you", "your",
+    "the", "their", "them", "there", "they", "this", "through", "to",
+    "was", "we", "were", "who", "went", "with", "you", "your",
 })
 
 
@@ -86,3 +87,39 @@ def lexical_match_terms(query, document):
     query_terms = set(_tokens(query))
     document_terms = set(_tokens(document))
     return sorted(query_terms & document_terms)
+
+
+def title_similarity(query, candidate_title):
+    """Compare title tokens while tolerating small spelling errors."""
+    query_tokens = _tokens(query)
+    title_tokens = _tokens(candidate_title)
+    if not query_tokens or not title_tokens:
+        return 0.0
+
+    matched = 0.0
+    for query_token in query_tokens:
+        best = 0.0
+        for title_token in title_tokens:
+            if query_token == title_token:
+                best = 1.0
+            elif min(len(query_token), len(title_token)) >= 6:
+                best = max(
+                    best,
+                    SequenceMatcher(
+                        None,
+                        query_token,
+                        title_token,
+                    ).ratio(),
+                )
+        matched += best
+    return matched / len(query_tokens)
+
+
+def token_coverage(query, document, max_query_terms=5):
+    """Measure how many distinct query concepts appear in candidate metadata."""
+    query_tokens = set(_tokens(query))
+    document_tokens = set(_tokens(document))
+    if not query_tokens:
+        return 0.0
+    denominator = min(max_query_terms, len(query_tokens))
+    return min(1.0, len(query_tokens & document_tokens) / denominator)

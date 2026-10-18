@@ -164,6 +164,47 @@ class RecommendationTests(unittest.TestCase):
         )
         self.assertEqual(result["recommendations"], [])
 
+    def test_plot_and_catalog_subjects_beat_unrelated_word_overlap(self):
+        books = [
+            {
+                "title": "The Goldfinch",
+                "description": (
+                    "A boy struggles with grief and attempts to find meaning."
+                ),
+            },
+            {
+                "title": "Papillon",
+                "author": "Henri Charriere",
+                "description": (
+                    "A man is imprisoned and makes several attempts to escape."
+                ),
+                "search_terms": [
+                    "prisoners",
+                    "escapes",
+                    "prison life in fiction",
+                ],
+                "source": "Open Library",
+                "source_url": "https://openlibrary.org/works/OL262984W",
+            },
+        ]
+        result = recommender.recommend_books(
+            "Shawshank Redemption",
+            "A man is jailed, befriends another inmate, and escapes prison.",
+            books,
+            top_k=2,
+            model_unavailable_reason="Use catalog candidate ranking.",
+            query_expansion="prison inmate prisoner escape freedom",
+        )
+
+        self.assertEqual(
+            result["recommendations"][0]["title"],
+            "Papillon",
+        )
+        self.assertEqual(
+            result["recommendations"][0]["source"],
+            "Open Library",
+        )
+
     def test_invalid_books_are_skipped_and_empty_input_fails_clearly(self):
         with patch.object(
             recommender,
